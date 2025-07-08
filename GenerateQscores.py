@@ -136,3 +136,28 @@ class GenerateQscores:
         back to numeric phred scores.
         '''
         return [ord(char) - 33 for char in qualitychars]
+
+def main():
+    # testing class
+    generate = GenerateQscores()
+    length = 20
+
+    print("=== Quality Score Generation Examples ===\n")
+
+    print("1. Random (30-40):")
+    randomdist = generate.randomdist(length)
+    print(f"   Quality string: {randomdist}")
+    print(f"   Phred scores: {generate.decodechars(randomdist)}\n")
+
+    print("2. Normal Distribution (mean=35, std=2):")
+    normaldist = generate.normaldist(length)
+    print(f"   Quality string: {normaldist}")
+    print(f"   Phred scores: {generate.decodechars(normaldist)}\n")
+
+    print("3. Weighted Choice (favors higher scores):")
+    weighted = generate.weightedchoice(length)
+    print(f"   Quality string: {weighted}")
+    print(f"   Phred scores: {generate.decodechars(weighted)}\n")
+
+if __name__ == "__main__":
+    main()
