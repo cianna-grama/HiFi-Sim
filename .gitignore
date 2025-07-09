@@ -1,0 +1,33 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# VS Code & IDEs
+.vscode/
+.idea/
+
+# Mac system files
+.DS_Store
+
+# Output files
+*.fasta
+*.fastq
+*.log
+*.out
+
+# Jupyter notebooks checkpoints
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Test results
+*.pytest_cache/
