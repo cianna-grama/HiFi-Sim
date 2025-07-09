@@ -6,6 +6,8 @@
 import argparse
 import os
 import sys
+import gzip
+import shutil 
 
 from SimReads import SimReads
 from FileGlance import FileGlance
@@ -15,7 +17,7 @@ def parse_qscore_params(args):
         return {
             'meanphred': int(args.qscoreparams[0]) if args.qscoreparams else 30,
             'stddev': float(args.qscoreparams[1]) if args.qscoreparams and len(args.qscoreparams) > 1 else 5
-        }
+        } 
     elif args.qscoremode == 'weighted':
         return {
             'phredrange': [30, 35, 40],
@@ -32,7 +34,7 @@ def main():
     parser.add_argument('--outputname', required=True, help='Prefix for output file')
     parser.add_argument('--outputformat', choices=['fasta', 'fastq'], required=True, help='Output format')
 
-    # Optional: read analysis
+    # Optional - readanalysis
     parser.add_argument('--readfolder', help='Path to folder of real reads to analyze before simulating')
 
     # Manual simulation inputs
@@ -48,6 +50,9 @@ def main():
 
     parser.add_argument('--qscoremode', choices=['normal', 'random', 'weighted'], default='normal')
     parser.add_argument('--qscoreparams', nargs='*', help='Q-score params: normal=[mean stddev], weighted=[score1 weight1 ...]')
+
+    # optional - gzip the outputted file
+    parser.add_argument('--gzip', action='store_true', help='Compress the output file after simulation')
 
     args = parser.parse_args()
     sim = SimReads()
