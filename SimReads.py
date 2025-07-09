@@ -11,8 +11,8 @@ import random
 import math
 import numpy as np
 import sys
-import argparse
-import GenerateQscores
+from GenerateQscores import GenerateQscores
+import time
 
 class SimReads:
     def __init__(self, errorrate=0, insertf=0, deletef=0, subf=0):
@@ -370,6 +370,9 @@ class SimReads:
                 return
         
         with open(outputfilename, 'w') as outputfile:   
+            # start timer and progress bar interval
+            starttime = time.time()
+            updateinterval = max(1, numreads // 100)
             # loop through for each read that needs to be created
             writtenreads = 0
             while writtenreads < numreads:
@@ -412,7 +415,7 @@ class SimReads:
                 # assign reference segment to the read ranging from the start until read length
                 refsegment = refseqread[startpos: startpos + simreadlength]
                 
-                # decide if foreward (True) or reverse complemented (False)
+                # decide if forward (True) or reverse complemented (False)
                 simreadseq = refsegment if random.choice([True, False]) else self.reverseComplement(refsegment)
 
                 # introduce errors 
@@ -450,21 +453,87 @@ class SimReads:
                     outputfile.write("+\n")
                     outputfile.write(qualitystr + "\n")
 
-                writtenreads += 1 # incriment loop after valid read is written to output file
+                writtenreads += 1 # increment loop after valid read is written to output file
 
-        print(f"Successfully generated {numreads} reads in {outputfile}")
+                if writtenreads % updateinterval == 0 or writtenreads == numreads:
+                    elapsed = time.time() - starttime
+                    percentdone = (writtenreads / numreads) * 100
+                    avtimeperread = elapsed / writtenreads
+                    estimatedtotal = avtimeperread * numreads
+                    timeleft = estimatedtotal - elapsed
+
+                    # progress bar
+                    barlength = 40
+                    filledlength = int(barlength * percentdone // 100)
+                    bar = '=' * filledlength + '-' * (barlength - filledlength)
+                    print(f"\r[{bar}] {percentdone:5.1f}% | {writtenreads}/{numreads} reads | "
+                    f"Elapsed: {elapsed:5.1f}s | ETA: {timeleft:5.1f}s", end='', flush=True)
+
+            totaltime = time.time() - starttime
+            print(f"\nFinished generating {numreads} reads in {totaltime:.2f} seconds.")
+
+        print(f"Successfully generated {numreads} reads in {outputfilename}")
         
-    def simulateFromReference(self):
-        '''
-        Wrapper function to simulate reads using analytics from read analysis.
-        Read analysis given from ReadAnalysis.py
+    def simulateFromReference(self, referencepath, outputname,
+                          outputformat, readstats, lengthstats,
+                          qscoremode, qscoreparams, errorrate=0.01,
+                          insertf=0.25, deletef=0.20, subf=0.55,
+                          snprate=0.001, indelrate=0.0001, 
+                          readlengthmode='lognormal', empiricallengths=None):
+        """
+        Wrapper for simulating synthetic HiFi reads using a reference genome
+        and statistics (assumed to come from ReadAnalysis).
 
-        Parameters: 
-        '''
+        Parameters:
+            referencepath (str): Path to reference FASTA/FASTA.gz file.
+            outputname (str): Output filename prefix.
+            outputformat (str): 'fasta' or 'fastq', passed via command line.
+            readstats (dict): Read count stats from ReadAnalysis.
+            lengthstats (dict): Read length stats from ReadAnalysis.
+            qscoremode (str): 'normal', 'random', or 'weighted'.
+            qscoreparams (dict): Parameters for quality score generation.
+            errorrate (float): Overall sequencing error rate.
+            insertf/deletef/subf (float): Error profile fractions.
+            snprate/indelrate (float): Biological variation parameters.
+            readlengthmode (str): 'lognormal' or 'empirical'.
+            empiricallengths (list): List of real read lengths (optional).
+        """
 
+        print("[INFO] Loading reference genome...")
+        refgenome = self.loadReference(referencepath)
 
+        print("[INFO] Applying biological variation...")
+        mutatedgenome = self.mutateGenome(refgenome, snprate=snprate, indelrate=indelrate)
 
-            
+        # Determine number of reads
+        mu = readstats.get('mean', 10000)
+        sigma = readstats.get('std', max(1.0, 0.1 * mu))  # avoid 0 std
+        min_reads = readstats.get('min', int(0.5 * mu))
+        max_reads = readstats.get('max', int(1.5 * mu))
 
+        sampled_reads = int(random.gauss(mu, sigma))
+        numreads = max(min_reads, min(sampled_reads, max_reads))
 
+        print(f"[INFO] Number of reads to simulate: {numreads}")
 
+        # Read length stats
+        lengthmean = lengthstats.get('mean', 15000)
+        lengthsd = lengthstats.get('sd', 2000)
+
+        print(f"[INFO] Simulating {numreads} {outputformat.upper()} reads to '{outputname}.{outputformat}'")
+        self.simulateHiFiReads(
+            genomedictref=mutatedgenome,
+            numreads=numreads,
+            errorrate=errorrate,
+            insertf=insertf,
+            deletef=deletef,
+            subf=subf,
+            outputformat=outputformat,
+            outputname=outputname,
+            readlengthmode=readlengthmode,
+            lengthmean=lengthmean,
+            lengthsd=lengthsd,
+            empiricallengths=empiricallengths,
+            qscoremode=qscoremode,
+            qscoreparams=qscoreparams
+        )
