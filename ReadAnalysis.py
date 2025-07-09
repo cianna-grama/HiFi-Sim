@@ -20,13 +20,13 @@ class ReadAnalysis:
             raise ValueError(f"The path {self.directorypath} does not exist or is not a directory.")
 
         # lists that hold content from analysis
-        self.readlengthvalues = []  # list of all read length values from all files
-        self.basecountvalues = {base: [] for base in ['A', 'C', 'T', 'G', 'N']}  # dictionary of lists of all base counts
-        self.gccontents = []  # list of all gc content percentages from each sequence
-        self.ncontents = []  # list of all n content percentages from each sequence
-        self.readsperfastafile = []  # list of the number of reads per fasta file
-        self.readsperfastqfile = []  # list of the number of reads per fastq file
-        self.qualityscores = []  # list of all the quality scores
+        self.readlengthvalues = []
+        self.basecountvalues = {base: [] for base in ['A', 'C', 'T', 'G', 'N']}
+        self.gccontents = []
+        self.ncontents = []
+        self.readsperfastafile = []
+        self.readsperfastqfile = []
+        self.qualityscores = []
 
         # statistics dictionary (0 bc no analysis performed yet)
         self.stats = {
@@ -187,6 +187,8 @@ class ReadAnalysis:
     def printAnalysis(self):
         self.calculateStats()
         pprint(self.stats)
+
+    # function to return the stat analysis 
 
     # function to analyze a single sequence of a file
     # updates statistics as part of analysis
@@ -386,18 +388,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
