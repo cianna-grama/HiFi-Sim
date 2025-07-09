@@ -136,6 +136,8 @@ class GenerateQscores:
         back to numeric phred scores.
         '''
         return [ord(char) - 33 for char in qualitychars]
+    
+
 
 def main():
     # testing class
