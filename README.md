@@ -114,7 +114,7 @@ python main_simreads_cli.py \
 
 ## Author
 
-Created by **Cianna**  
+Created by **Cianna Grama**  
 GitHub: [@cianna-grama](https://github.com/cianna-grama)
 
 ---
