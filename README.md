@@ -31,7 +31,7 @@ cd hifireadsim
 Run the CLI tool:
 
 ```bash
-python main_simreads_cli.py --help
+python HiFiSimCLI.py --help
 ```
 
 ---
@@ -39,7 +39,7 @@ python main_simreads_cli.py --help
 ## Usage Example
 
 ```bash
-python main_simreads_cli.py \
+python HiFiSimCLI.py \
   --input reference_genome.fa \
   --outputname test_reads \
   --outputformat fastq \
