@@ -3,7 +3,7 @@
 # SimReads.py
 # Class to generate synethetic reads
 '''
-hbfhwb
+Description here.
 '''
 
 import gzip
@@ -290,6 +290,14 @@ class SimReads:
         '''
         print(f"Error: {message}", file=sys.stderr)
 
+    def formattime(self, seconds):
+        '''
+        Format seconds as MM:SS string.
+        Helper function for the progress bar of reads.
+        '''
+        mins, secs = divmod(int(seconds), 60)
+        return f"{mins:02d}:{secs:02d}"
+
     def simulateHiFiReads(self, genomedictref, numreads, errorrate, insertf, deletef, subf, outputformat, 
                       outputname, readlengthmode='lognormal', lengthmean=0, lengthsd=0, 
                       empiricallengths=None, qscoremode='normal', qscoreparams=None):
@@ -372,7 +380,7 @@ class SimReads:
         with open(outputfilename, 'w') as outputfile:   
             # start timer and progress bar interval
             starttime = time.time()
-            updateinterval = max(1, numreads // 100)
+            updateinterval = max(1, numreads // 200)
             # loop through for each read that needs to be created
             writtenreads = 0
             while writtenreads < numreads:
@@ -460,18 +468,22 @@ class SimReads:
                     percentdone = (writtenreads / numreads) * 100
                     avtimeperread = elapsed / writtenreads
                     estimatedtotal = avtimeperread * numreads
-                    timeleft = estimatedtotal - elapsed
+                    timeleft = max(0, estimatedtotal - elapsed)
 
-                    # progress bar
                     barlength = 40
                     filledlength = int(barlength * percentdone // 100)
                     bar = '=' * filledlength + '-' * (barlength - filledlength)
-                    print(f"\r[{bar}] {percentdone:5.1f}% | {writtenreads}/{numreads} reads | "
-                    f"Elapsed: {elapsed:5.1f}s | ETA: {timeleft:5.1f}s", end='', flush=True)
 
-            totaltime = time.time() - starttime
-            print(f"\nFinished generating {numreads} reads in {totaltime:.2f} seconds.")
+                    progressline = (
+                        f"\r[{bar}] {percentdone:5.1f}% | Reads: {writtenreads}/{numreads} | "
+                        f"Elapsed: {self.formattime(elapsed)} | ETA: {self.formattime(timeleft)}"
+                    )
 
+                    print(progressline, end='', flush=True)
+
+        print()
+        totaltime = time.time() - starttime
+        print(f"\nFinished generating {numreads} reads in {totaltime:.2f} seconds.")
         print(f"Successfully generated {numreads} reads in {outputfilename}")
         
     def simulateFromReference(self, referencepath, outputname,
@@ -537,3 +549,10 @@ class SimReads:
             qscoremode=qscoremode,
             qscoreparams=qscoreparams
         )
+
+
+
+            
+
+
+
