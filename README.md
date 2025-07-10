@@ -65,10 +65,10 @@ python HiFiSimCLI.py \
 | `--outputname`       | ✅        | Prefix for output file |
 | `--outputformat`     | ✅        | Output format: `fasta` or `fastq` |
 | `--numreads`         | ❌        | Number of reads to simulate (auto-selected if not provided) |
-| `--errorrate`        | ❌        | Overall error rate (0.0–1.0) |
-| `--insertf`          | ❌        | Fraction of insertions |
-| `--deletef`          | ❌        | Fraction of deletions |
-| `--subf`             | ❌        | Fraction of substitutions |
+| `--errorrate`        | ✅        | Overall error rate |
+| `--insertf`          | ✅        | Fraction of insertions for error rate |
+| `--deletef`          | ✅        | Fraction of deletions for error rate |
+| `--subf`             | ✅        | Fraction of substitutions for error rate |
 | `--readlengthmode`   | ❌        | Choose `lognormal` or `empirical` |
 | `--lengthmean`       | ❌        | Mean read length (for lognormal) |
 | `--lengthsd`         | ❌        | Standard deviation of read length (for lognormal) |
